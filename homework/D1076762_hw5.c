@@ -3,7 +3,7 @@
 
 // Homework 1
 
-int homework1() {
+void homework1() {
     char asciiArt[][120] = {
         "───────────────────────────────────────",
         "───▐▀▄───────▄▀▌───▄▄▄▄▄▄▄─────────────",
@@ -25,8 +25,6 @@ int homework1() {
     for (int i = 0; i < 16; i++) {
         printf("%s\n", asciiArt[i]);
     }
-
-    return 0;
 }
 
 // Homework 2
@@ -71,7 +69,7 @@ void hpaSuggest(float bmi) {
     printf("\n");
 }
 
-int homework2() {
+void homework2() {
     // Declare variables
     float bmi;
     float height;
@@ -92,12 +90,10 @@ int homework2() {
     soldierCheck(bmi);
     policeCheck(bmi);
     hpaSuggest(bmi);
-
-    return 0;
 }
 // Homework 3
 
-int homework3() {
+void homework3() {
     // Declare variables
     int studentId;
     int registerYear;
@@ -141,8 +137,6 @@ int homework3() {
     } else {
         printf("(單號)實體上課\n");
     }
-
-    return 0;
 }
 
 // Homework 4
@@ -164,7 +158,7 @@ int verifyStudentId(int studentId) {
     return checkCode == lastDigit;
 }
 
-int homework4A() {
+void homework4A() {
     int studentId;
 
     // Get student id
@@ -176,11 +170,9 @@ int homework4A() {
     } else {
         printf("學生證號無效\n");
     }
-
-    return 0;
 }
 
-int homework4B() {
+void homework4B() {
     int count[2] = {0, 0};
     int odd = 0;   // 1, 3, 5
     int even = 0;  // 0, 2, 4
@@ -205,7 +197,7 @@ void printFunctionName(char *text) {
 }
 
 int main() {
-    int n;
+    int n = -1;
     while (n != 0) {
         printf("1. ASCII Art for Tamagotchi\n");
         printf("2. BMI 計算器\n");
@@ -265,4 +257,6 @@ int main() {
         system("PAUSE");
         printf("\n\n\n");
     }
+
+    return 0;
 }
