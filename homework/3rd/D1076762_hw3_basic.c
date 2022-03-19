@@ -100,9 +100,15 @@ void freeAll(Words *words) {
 }
 
 void printWords(Words *words) {
-    printf("%s\t", words->data[0]);
-    for (int i = 1; i < words->count; i++) {
-        printf("%s%c", words->data[i], "\t\n"[!((i + 1) % 10)]);
+    int i, j;
+    for (i = 0, j = 0; i < words->count; i++) {
+        if (!(words->data[i][6] == 1)) {
+            j++;
+            printf("%s%c", words->data[i], "\t\n"[!(j % 10)]);
+        }
+    }
+    if (j % 10) {
+        printf("\n");
     }
 }
 
@@ -134,7 +140,7 @@ void search(Words *words) {
         }
 
         for (int i = 0, flag = 1; i < words->count; i++, flag = 1) {
-            if (!words->data[i][6]) {  // check if word is filtered
+            if (words->data[i][6] == 1) {  // check if word is filtered
                 continue;
             }
 
@@ -164,16 +170,14 @@ void search(Words *words) {
                         flag = 0;
                         break;
                     }
-                                }
+                }
             }
 
-            if (flag) {
-                printf("%s\t", words->data[i]);
-            } else {
-                words->data[i][6] = 0;
+            if (!flag) {
+                words->data[i][6] = 1;
             }
         }
-        printf("\n");
+        printWords(words);
     }
 }
 int main() {
@@ -184,4 +188,6 @@ int main() {
 
     freeAll(history);
     freeAll(words);
+    
+    return 0;
 }
