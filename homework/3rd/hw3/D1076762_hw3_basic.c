@@ -115,7 +115,7 @@ void printWords(Words *words) {
 void search(Words *words) {
     char input[7];
     char result[7];
-    int alphabetCounter[26] = {0};
+    int alphabetCounter[26][2];
     while (1) {
         printf(" Input: ");
         scanf("%5s", input);
@@ -130,12 +130,15 @@ void search(Words *words) {
         // reset counter
         int hasY = 0;
         for (int i = 0; i < 26; i++) {
-            alphabetCounter[i] = 0;
+            alphabetCounter[i][0] = 0;  // y
+            alphabetCounter[i][1] = 0;  // b
         }
         for (int i = 0; i < 5; i++) {
             if (result[i] == 'y') {
-                alphabetCounter[input[i] - 97]++;
+                alphabetCounter[input[i] - 97][0]++;
                 hasY = 1;
+            } else if (result[i] == 'b') {
+                alphabetCounter[input[i] - 97][1]++;
             }
         }
 
@@ -144,7 +147,15 @@ void search(Words *words) {
                 continue;
             }
 
-            if (hasY) {
+            for (int j = 0; j < 5; j++) {
+                if (alphabetCounter[words->data[i][j] - 97][0] == 0  // doesn't contain y
+                    && alphabetCounter[words->data[i][j] - 97][1] > 0) {
+                    flag = 0;
+                    break;
+                }
+            }
+
+            if (flag && hasY) {
                 int alphabets[26] = {0};
                 for (int j = 0; j < 5; j++) {
                     alphabets[words->data[i][j] - 97]++;
@@ -154,7 +165,7 @@ void search(Words *words) {
                     }
                 }
                 for (int j = 0; j < 26; j++) {
-                    if (alphabetCounter[j] > alphabets[j]) {
+                    if (alphabetCounter[j][0] > alphabets[j]) {
                         flag = 0;
                         break;
                     }
@@ -188,6 +199,6 @@ int main() {
 
     freeAll(history);
     freeAll(words);
-    
+
     return 0;
 }
