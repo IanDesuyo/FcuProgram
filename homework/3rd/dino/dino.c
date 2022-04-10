@@ -1,21 +1,36 @@
+//   _______   __  .__   __.   ______
+//  |       \ |  | |  \ |  |  /  __  \  
+//  |  .--.  ||  | |   \|  | |  |  |  |
+//  |  |  |  ||  | |  . `  | |  |  |  |
+//  |  '--'  ||  | |  |\   | |  `--'  |
+//  |_______/ |__| |__| \__|  \______/   v1.0
+//
+//
+//  By @IanDesuyo
+
+// ========== Game Settings ==========
+#define CANVAS 50                // The size of the canvas, default = 50
+#define PLAYERSPOT 5             // The position of the player, default = 5
+#define JUMP_DISTANCE 5          // The distance of the jump, default = 5
+#define RENDER_DELAY 100         // The delay between each frame, default = 100
+#define CANON_EXPLOSION_RANGE 3  // The explosion range of the cannon, default = 3
+#define DEV_MODE false           // If true, you will not die when you hit a cactus
+#define JUMP_KEY1 0x26           // The key to jump, default = 0x26 (up arrow)
+#define JUMP_KEY2 0x20           // The key to jump, default = 0x20 (space)
+#define CANON_KEY 0x5A           // The key to shoot, default = 0x5A (Z)
+// ===================================
+
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 
-#define CANVAS 50
-#define PLAYERSPOT 5
-#define JUMP_LEN 5
-#define RENDER_DELAY 100
-#define SHOT_RANGE 3
-#define DEV_MODE true
-
 #ifdef _WIN32
 #include <windows.h>
 #define CLEAR_SCREEN() system("cls")
-#define JUMP_KEY() GetAsyncKeyState(0x26) & 0x8000
-#define JUMP_SPACE() GetAsyncKeyState(0x20) & 0x8000
-#define SHOT_KEY() GetAsyncKeyState(0x5A) & 0x8000
+#define JUMP_FUNC1() GetAsyncKeyState(JUMP_KEY1) & 0x8000
+#define JUMP_FUNC2() GetAsyncKeyState(JUMP_KEY2) & 0x8000
+#define CANON_FUNC() GetAsyncKeyState(CANON_KEY) & 0x8000
 #define SLEEP(x) Sleep(x)
 #elif __linux__
 #error "Linux is not supported :("
@@ -54,7 +69,6 @@ void print(char *barrier, State *state) {
             printf("\n");
         }
     } else {
-        // upper area
         // 1
         printf("\n\x1B[33m");
         for (int i = 0; i < CANVAS; i++) {
@@ -67,6 +81,7 @@ void print(char *barrier, State *state) {
             printf("%c", " ."[(state->neoArmstrongCycloneJetArmstrongCannonState == 2 && i == PLAYERSPOT + 1) || (state->neoArmstrongCycloneJetArmstrongCannonState == 6 && i == PLAYERSPOT + 9)]);
         }
         printf("\n");
+
         // 3
         for (int i = 0; i < CANVAS; i++) {
             if (i == PLAYERSPOT && state->neoArmstrongCycloneJetArmstrongCannonState) {
@@ -76,6 +91,7 @@ void print(char *barrier, State *state) {
             }
         }
         printf("\n");
+
         // 4
         for (int i = 0; i < CANVAS; i++) {
             if (i == PLAYERSPOT && state->neoArmstrongCycloneJetArmstrongCannonState) {
@@ -132,12 +148,12 @@ void print(char *barrier, State *state) {
     }
     // front
     for (int i = PLAYERSPOT + 1; i < CANVAS; i++) {
-        if (state->neoArmstrongCycloneJetArmstrongCannonState == 10 && i >= PLAYERSPOT + 17 - SHOT_RANGE && i <= PLAYERSPOT + 17 + SHOT_RANGE) {
-            if (i == PLAYERSPOT + 17 - SHOT_RANGE) {
+        if (state->neoArmstrongCycloneJetArmstrongCannonState == 10 && i >= PLAYERSPOT + 17 - CANON_EXPLOSION_RANGE && i <= PLAYERSPOT + 17 + CANON_EXPLOSION_RANGE) {
+            if (i == PLAYERSPOT + 17 - CANON_EXPLOSION_RANGE) {
                 printf("\x1B[33m\\");
-            } else if (i > PLAYERSPOT + 17 - SHOT_RANGE && i < PLAYERSPOT + 17 + SHOT_RANGE) {
+            } else if (i > PLAYERSPOT + 17 - CANON_EXPLOSION_RANGE && i < PLAYERSPOT + 17 + CANON_EXPLOSION_RANGE) {
                 printf("_");
-            } else if (i == PLAYERSPOT + 17 + SHOT_RANGE) {
+            } else if (i == PLAYERSPOT + 17 + CANON_EXPLOSION_RANGE) {
                 printf("/\x1B[32m");
             }
         } else if (barrier[i] == 'X') {
@@ -172,10 +188,10 @@ void render(char *barrier, State *state) {
 
 int logic(char *barrier, State *state) {
     if (state->isJumping) {
-        if (++state->jumpAt == JUMP_LEN) {
+        if (++state->jumpAt == JUMP_DISTANCE) {
             state->isJumping = false;
         }
-    } else if (JUMP_KEY() || JUMP_SPACE()) {
+    } else if (JUMP_FUNC1() || JUMP_FUNC2()) {
         if (!state->isJumping) {
             state->isJumping = true;
             state->jumpAt = 0;
@@ -186,37 +202,46 @@ int logic(char *barrier, State *state) {
         state->neoArmstrongCycloneJetArmstrongCannonState++;
         if (state->neoArmstrongCycloneJetArmstrongCannonState == 11) {
             state->neoArmstrongCycloneJetArmstrongCannonState = 0;
-            for (int i = PLAYERSPOT + 17 - SHOT_RANGE; i <= PLAYERSPOT + 17 + SHOT_RANGE; i++) {
+            for (int i = PLAYERSPOT + 17 - CANON_EXPLOSION_RANGE; i <= PLAYERSPOT + 17 + CANON_EXPLOSION_RANGE; i++) {
                 if (barrier[i] == 'X') {
                     state->neoArmstrongCycloneJetArmstrongCannonDestoryed++;
                 }
                 barrier[i] = '_';
             }
         }
-    } else if (SHOT_KEY()) {
+    } else if (CANON_FUNC()) {
         state->neoArmstrongCycloneJetArmstrongCannonState++;
     }
 
     if (barrier[PLAYERSPOT] == 'X' && !state->isJumping && !DEV_MODE) {
         state->gameOver = true;
         print(barrier, state);
-        return 1;
+        return true;
     }
     state->score++;
 
-    return 0;
+    return false;
 }
 
 int main() {
-    State state = {.score = 0, .lastBarrier = 100, .isJumping = false, .jumps = 0, .gameOver = false, .neoArmstrongCycloneJetArmstrongCannonState = 0, .neoArmstrongCycloneJetArmstrongCannonDestoryed = 0};
+    State state = {
+        .score = 0,
+        .lastBarrier = 100,
+        .isJumping = false,
+        .jumps = 0,
+        .gameOver = false,
+        .neoArmstrongCycloneJetArmstrongCannonState = 0,
+        .neoArmstrongCycloneJetArmstrongCannonDestoryed = 0,
+    };
     char barrier[CANVAS];
+
     for (int i = 0; i < CANVAS; i++) {
         barrier[i] = '_';
     }
     CLEAR_SCREEN();
     printf("\e[?25l");
 
-    while (1) {
+    while (true) {
         if (logic(barrier, &state)) {
             break;
         };
