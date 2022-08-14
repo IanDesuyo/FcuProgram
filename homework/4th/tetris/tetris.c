@@ -4,7 +4,7 @@
 //     \\_ /    \/    |      \\_ /   |_____/   ) |:  |   \___  \    
 //     |.  |    // ___)_     |.  |    //      /  |.  |    __/  \\   
 //     \:  |   (:      "|    \:  |   |:  __   \  /\  |\  /" \   :)
-//      \__|    \_______)     \__|   |__|  \___)(__\_|_)(_______/   V0.77525512861
+//      \__|    \_______)     \__|   |__|  \___)(__\_|_)(_______/   V0.78763548631
 //
 //
 //  By @IanDesuyo
@@ -35,6 +35,8 @@
 #define DOWN_FUNC() GetAsyncKeyState(DOWN_KEY) & 0x8000
 #define FALL_FUNC() GetAsyncKeyState(FALL_KEY) & 0x8000
 #define SLEEP(x) Sleep(x)
+#elif __APPLE__
+#error "Mac OS is not supported :("
 #elif __linux__
 #error "Linux is not supported :("
 #endif
@@ -217,13 +219,16 @@ void printCanvas(Block canvas[CANVAS_HEIGHT][CANVAS_WIDTH], State *state) {
     // print next block
     Shape shapeData = shapes[state->queue[1]];
     printf("\033[%d;%dHNext:", 3, CANVAS_WIDTH * 2 + 5);
-    for (int i = 0; i < 4; i++) {
-        printf("\033[%d;%dH", 5 + i, CANVAS_WIDTH * 2 + 6);
+    for (int i = 1; i <= 4; i++) {
+        shapeData = shapes[state->queue[i]];
         for (int j = 0; j < 4; j++) {
-            if (i < shapeData.size && j < shapeData.size && shapeData.rotates[0][i][j]) {
-                printf("\x1b[%dm\u3000", shapeData.color);
-            } else {
-                printf("\x1b[0m\u3000");
+            printf("\033[%d;%dH", i * 4 + j, CANVAS_WIDTH * 2 + 15);
+            for (int k = 0; k < 4; k++) {
+                if (j < shapeData.size && k < shapeData.size && shapeData.rotates[0][j][k]) {
+                    printf("\x1b[%dm  ", shapeData.color);
+                } else {
+                    printf("\x1b[0m  ");
+                }
             }
         }
     }
